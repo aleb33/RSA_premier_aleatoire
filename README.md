@@ -1,4 +1,4 @@
-# Projet tutoré L3 📚
+# Projet tutoré L3 📚 
 
 -----------------
 
@@ -13,3 +13,7 @@ Certains algorithmes de chiffrements à clef publique, comme le système RSA uti
 Il existe de nombreuses solutions visant à diminuer ce temps de calcul quitte à sacrifier un peu le caractère aléa- toire des nombres premiers générés. D’autres solutions visent à produire des nombres premiers de manière proche de l’uniforme en diminuant la quantité d’aléas nécessaire.
 
 L’objectif du projet sera de comprendre et d’implémenter certaines de ces méthodes et de comparer les différents résultats expérimentaux vis à vis du temps de calcul, de la quantité d’aléas et du caractère aléatoire de la sortie.
+
+-----------------
+
+Alexandre Bousquet [Anass Bousseaden](https://github.com/AnassBousseaden) [Baptiste Bédouret](https://github.com/Baptiste-is)
