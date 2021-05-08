@@ -1,6 +1,10 @@
 # Projet tutoré L3 📚
 
+-----------------
+
 ## Professeur accompagnant Monsieur [Guilhem Castagnos](https://www.math.u-bordeaux.fr/~gcastagn/)
+
+-----------------
 
 ### Sujet : Génération aléatoire de nombres premiers
 
