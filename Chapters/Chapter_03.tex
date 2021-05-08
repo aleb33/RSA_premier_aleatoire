@@ -1,0 +1,146 @@
+\chapter{Test de primalité}
+\label{Test de primalité}
+Les tests de primalité sont des algorithmes permettant de déclarer et démontrer à coup sûr que le nombre est premier ou non sans utiliser d'aléatoire. Ces tests sont exercés sur des nombres entiers positifs qui peuvent être prouvés comme premiers. Ces algorithmes de primalité sont généralement plus coûteux sur le plan informatique que les tests probabilistes de primalité de la section \ref{Test probabiliste de primalité}. Ainsi, avant d’appliquer l’un de ces tests à un candidat primaire $n$, le candidat doit être soumis à un test de primalité probabiliste tel que Miller-Rabin pour améliorer le temps de calcul. Dans cette partie nous nous intéresserons à deux types de tests d'une part celui de Lucas-Lehmer qui teste les nombres de Mersenne et d'autre part celui de Pocklington qui prouve qu'un nombre est premier par la factorisation partielle $n-1$. Nous n'aborderons pas le test utilisant les courbes elliptiques car nous n'avons pas abordé cette notion.
+
+\section{Test de Lucas-Lehmer}
+
+Le test de Lucas-Lehmer est un algorithme efficace permettant de prouver et tester si un nombre de Mersenne est premier. Or c'est une classe de nombres avec une propriété particulière.
+Ainsi pour cela rappelons la définition d'un nombre de Mersenne.
+
+\subsection{Les nombres de Mersenne}
+
+\underline{\textbf{Définition :}}
+Soit  $p \geq 2$ un entier, un nombre de Mersenne est un entier de la forme $M_p=2^p -1$.\\
+Si $M_p$ est premier alors il est appelé nombre premier de Mersenne.\\
+\\
+Evidemment tous les nombres de Mersenne ne sont pas premiers.
+\subsection{Théoreme de Lucas-Lehmer}
+Les conditions suivantes sont nécessaires et suffisantes pour qu’un nombre de Mersenne soit premier.
+
+\underline{\textbf{Théorème :}}
+Soit $p \geq 3$. Le nombre de Mersenne est premier si les deux conditions suivantes sont satisfaites:
+\begin{enumerate}[label=\roman*)]
+ \item $ p $ est premier ;
+ \item  la suite d’entier définies par, $u_0=4$ et  $u_{i+1}=(u_i^2 -2)\mod n$ pour $i \geq 0$ satisfait $u_{p-2}=0 $;
+\end{enumerate}
+
+Ce théorème conduit au test de Lucas-Lehmer, un algorithme en temps polynomial permettant de déterminer avec certitude si un nombre de Mersenne est premier. 
+
+\clearpage
+
+\subsection{Le test de Lucas-Lehmer}
+
+\begin{algorithm}
+\caption{testLucasLehmer($p$)}
+\begin{algorithmic}[1]
+\Require{Un nombre de Mersenne $n=2^p-1$ avec $p\geq3$}
+\Ensure{$n$ est premier ou composé}
+\For{$i$ \textbf{allant de} 2 \textbf{à} $\left\lfloor\sqrt{p}\right\rfloor$}
+\If{$i$ divise $p$} \Return "composé" 
+\EndIf
+\EndFor
+\State Choisir $u=4$ 
+\For{$i$ \textbf{allant de} 1 \textbf{à} $p-2$}
+\State $u\leftarrow u^2-2 \mod n$
+\EndFor
+\If{$u = 0$} \Return "premier" 
+\EndIf
+\State \Return "composé"
+\end{algorithmic}
+\end{algorithm}
+Cet algorithme sert à tester une classe de nombres premiers bien spécifiques mais il est le plus efficace si le nombre premier est un nombre premier de Mersenne. \\
+\\ \underline{\textbf{Expériences :}}
+L'algorithme nous donne des résultats presque immédiats ($\approx 3\, s.$) pour des nombres de 20000 bits ce qui montre son efficacité. Malheureusement, la première boucle "pour" nous ralentit considérablement pour un nombre $p\geq$ 500000 bits.
+
+\section{Test de Pocklington}
+
+Ce test permet de prouver qu'un nombre entier $n$ est premier, à condition que la factorisation partielle de $n-1$ soit connue. Ce n'est à priori pas évident d'envisager une méthode telle que la factorisation de $n-1$ soit un sous-problème. Parce que en terme de bits $n-1$ et $n$ sont presque égaux. Néanmoins, la factorisation de $n-1$ peut être plus facile à calculer si $n$ a une forme spéciale ou lorsque le $n$ candidat est construit par des méthodes spécifiques comme nous le verrons dans la section suivante. Le test de Pocklington n'est pas vraiment un test car il résulte du théorème de Pocklington mais il est nécessaire de comprendre le théorème et de l'implémenter car il sera utile pour la génération de nombres premiers.
+
+\subsection{Théoreme de Pocklington}
+
+\underline{\textbf{Proposition :}}
+Soit un entier $n\geq3$. Alors $n$ est premier si et seulement si il existe un entier $a$ satisfaisant : 
+
+\begin{enumerate}[label=\roman*)]
+ \item $a^{n-1} \equiv 1 \mod n $ et
+ \item  $a^{\frac{n-1}{q}} \not \equiv 1 \mod n$ pour tout diviseur premier $q$ de $n-1$
+\end{enumerate}
+
+Ce résultat vient du fait que $(\mathbb {Z} /n\mathbb {Z} )^{\times }$ a un élément $a$ d'ordre $n-1$ si et seulement si $n$ est premier. Donc cet élément $a$ vérifie i) et ii).\\ D'après cette proposition nous pourrions faire un test de primalité pour $n$. Pour tester si $n$ est premier, on choisit $a \in \mathbb{Z}/n\mathbb{Z}$ et on vérifie les hypothèses i) et ii) pour vérifier si $a$ est d'ordre $n-1$. On sait qu'il y a $\varphi(n-1)$ éléments d'ordre $n-1$ dans $ \mathbb{Z}/n\mathbb{Z}$. Ainsi, si $a$ n'est pas d'ordre $n-1$ on réitère avec un autre $a$ choisit. Mais pour cela il faut établir un nombre d'itération pour ne pas que le test soit trop "gourmand". Pour cela le bon nombre d'itération est de l'ordre de $\dfrac{n-1}{\varphi(n-1)}$ .\\ Enfin, si le test ne trouve pas de $a$ qui fonctionne après ce nombre d'itérations alors $n$ est probablement composé, il reste à vérifier si $n$ est composé en faisant le test de Miller-Rabin en parallèle afin d'être sûr.
+\\ \\
+Cette proposition et ce test nous amène a un théorème central permettant de prouver la primalité de $n$ en ne connaissant que la factorisation partielle de $n-1$.
+
+\underline{\textbf{Théorème :}}
+Soit $n \geq 3$ un entier, et $n=RF+1$.  F est produit de facteur premier c’est-à-dire $F=\prod\limits_{j=1}^t q_j^{\alpha_j}$. S'il existe un entier $a$ qui satisfait :
+
+\begin{enumerate}[label=\roman*)]
+ \item   Soit $a^n-1 \equiv 1 \mod n$ et
+ \item   Soit $ \text{pgcd}(a^{n-1/q_j} -1,n)=1$ pour $j$, $1\leq j \leq t$.
+\end{enumerate}
+
+Alors chaque diviseur premier $p$ de $n$ est congru à $1 \mod F$. En particulier : si $F\geq \sqrt{n}-1$ alors $n$ est premier.
+
+\underline{\textbf{Preuve :}}
+ 
+\subsection{Le test de Pocklington}
+
+\begin{algorithm}[h!]
+\caption{testPocklington($n$,$L$)}
+\begin{algorithmic}[1]
+\Require{$n=RF+1$, $L$ la liste des facteurs premiers de $F$ }
+\Ensure{$n$ est premier ou composé}
+\State \textbf{Choisir} $a$ un entier tel que $2\leq a \leq n-2$
+\If{$a^{n-1} \not \equiv 1 \mod n$} \Return "probablement composé" 
+\EndIf
+\For{\textbf{tout }$q$ dans $L$}
+\State $R=a^{\frac{n-1}{q}} \mod n$
+\If{$\text{pgcd}(R,n) \not = 1$} \Return " probablement composé" 
+\EndIf
+\EndFor
+\State \Return "premier"
+\end{algorithmic}
+\end{algorithm}
+
+Pour être plus précis on doit déterminer un nombre d'itérations afin d'avoir un algorithme optimal. Pour cela nous arrivons à une proposition nous permettant de calculer la probabilité de choisir une base $a$ qui convient pour i) et ii).
+
+\underline{\textbf{Proposition :}}
+Soit $n \geq 3$ un entier, et $n=RF+1$.  F est produit de facteur premier c’est-à-dire $F=\prod\limits_{j=1}^t q_j^{\alpha_j} > \sqrt{n}-1$  et $\text{pgcd}(R,F)=1$. Alors, la probabilité de choisir aléatoirement une base $a$ , $1\leq a \leq n-1$ satisfaisant: i) et ii) est $\prod\limits_{j=1}^t (1-\frac{1}{q_j}) \geq 1 - \sum\limits_{j=1}^{t} \frac{1}{q_j}  $.
+\\
+\underline{\textbf{Remarque :}}
+Cette propostion nous amène au fait que le bon nombre d'itérations qui doit être fait est $T$ où $P^T \leq (\frac{1}{2})^{100}$ et $P=1-\prod\limits_{j=1}^t (1-\frac{1}{q_j})$. Nous avons eu du mal à bien calculer ce $T$ pour garantir cette sécurité demandée c'est pourquoi nous avons mis $T=1$ mais il faudrait adapter $P$ et $T$ à notre nombre de facteurs premiers de $F$.
+
+\\
+On a donc l'algorithme suivant pour le test de Pocklington.
+
+\clearpage
+
+\begin{algorithm}[h!]
+\caption{testPocklingtonBis($n$,$L$)}
+\begin{algorithmic}[1]
+\Require{$n=RF+1$, $L$ la liste des facteurs premiers de $F$ }
+\Ensure{$n$ est premier ou composé}
+\State Soit $T=1$
+\For{$i$ \textbf{allant de} 0 \textbf{à} $T$}
+\If{testPocklington(n,L)=="premier"} \Return " premier" 
+\EndIf
+\EndFor
+\State \Return "probablement composé"
+\end{algorithmic}
+\end{algorithm}
+
+
+\underline{\textbf{Expériences :}}
+Nos algorithmes fonctionnent avec des nombres jusqu'à 600 bits car nous utilisons la fonction $factor()$ de sagemath pour récupérer la factorisation totale de $n-1$. Nous n'avons pas codé une fonction permettant de récupérer que la factorisation partielle avec $F > \sqrt{n}-1 $ ainsi nous ne pouvons pas tester avec des nombres de 1024 bits ou 2048 bits mais on est sûr que nos algorithmes fonctionnent jusqu'aux nombres de 600 bits si on met une factorisation partielle vérifiant l'inégalité précédente. Pour tester nos algortihmes nous avons utilisé des nombres de Mersenne $M_p$ premiers ou non avec au maximum 600 bits car il est facile de trouver la factorisation.
+
+\subsection{Intérêts et optimisations}
+
+Le test de Pocklington peut être amélioré en utilisant cette proposition :
+
+\underline{\textbf{Proposition :}}
+Soit $n \geq 3$ un entier, et $n=2RF+1$. Alors, on suppose qu'il existe un $a$ satisfaisant les deux propriétés suivantes: Soit $a^n-1 \equiv 1 \mod n$ et $ \text{pgcd}(a^{n-1/q} -1,n)=1$ pour tout $q$ premier divisant $F$. Soit $x\geq 0$, and $y$ tels que $2R=xF+y $ avec $0\leq y \leq F$. Si $F \geq \sqrt[3\,]{n}$ et $y^2-4x$ est proche de 0 ou un carré parfait alors $n$ est premier.
+
+\\ 
+Or, nous avons pas décidé de coder ce raffinement car cela ne nous a pas semblé forcément beaucoup plus utile de la coder et peut être pas beaucoup plus efficace que le test de Pocklington. Le plus important est de bien comprendre le théorème de Pocklington.
+\\
+Il faut savoir que ce théorème est central car c'est à partir de lui que l'on va construire des applications et des améliorations pour générer des grands nombres premiers et être sur de leur primalité. Ainsi, dans la section suivante, nous verrons l'algorithme de Gordon \ref{Algorithme de Gordon} et DSA \ref{Algorithme DSA} qui sont des applications de ce théorème avec des notions ajoutées pour rendre plus forts la génération de nombres premiers.
+

@@ -1,0 +1,257 @@
+\chapter{Test probabiliste de primalité}
+\label{Test probabiliste de primalité}
+
+Tout d'abord un algorithme probabiliste est un algorithme utilisant une source de hasard. Ces algorithmes sont rapides à l'exécution mais ils ne donnent pas toujours un résultat correct avec certitude.\\ Ils renvoient deux choses pour un $n$ fixé :\\
+-Soit le test retourne que $n$ est \textbf{premier} et dans ce cas le résultat n'est pas certain.\\
+-Soit le test retourne que $n$ est \textbf{composé} et dans ce cas on est certain.\\
+Ainsi un test probabiliste nous donne avec certitude que $n$ est composé.
+Mais on ne peut jamais être sûr que $n$ est premier.
+
+
+Il y a plusieurs familles de tests probabilistes. 
+Les trois grands tests connus sont le test de Fermat, le test de Solovay-Strassen et le test de Miller-Rabin.
+Le test de Miller-Rabin est analogue au test de primalité de Solovay-Strassen, que l'on ne traitera pas, mais cependant toujours plus efficace que ce dernier et le test de Fermat.
+
+On s'accordera à dire en pratique qu'il faut que l'algorithme est une probabilité inférieure à $\left(\frac{1}{2}\right)^{80}$ d'échouer. Il faut alors s'assurer que le paramètre de sécurité garantit un tel niveau de sécurité pour une taille de bits donnée.
+
+On se concentrera dans cette deuxième partie sur le test de Fermat et de Miller-Rabin. 
+
+
+\section{Test Probabiliste Première Idée}
+Avant toute chose, si on pense à un test probabiliste de primalité la chose la plus simple à laquelle on pense est le théorème de Fermat ou alors de chercher un diviseur du nombre compris entre 2 et sa racine.\\
+Ainsi, une première idée pour établir un test de primalité on se base
+sur le petit théorème de Fermat que l'on implémente de la manière suivante. \\
+Pour dire si $n$ est premier ou pas on calcule  $ b = a^{n-1} \mod n$.\\ On observe ainsi que : \\  
+- Si  $ b \not \equiv 1 \mod n$ alors on est sur que $n$ est composé.\\
+- Si $ b \equiv 1 \mod n$ alors $n$ est peut-être premier. On teste avec un autre $a$ pour vérifier si $n$ est premier.\\
+\\
+Évidemment on voit que cet algorithme n'est qu'une idée générale mais pas applicable en réalité car pas assez fort et utile pour vérifier la primalité d'un nombre. Il permet donc d'introduire le test de Fermat qui suit.
+
+\section{Test de Fermat}
+En algorithmique, le test de primalité de Fermat est un test de primalité probabiliste basé sur le petit théorème de Fermat. 
+Il est de type Monte-Carlo. Cette spécificité nous permet de savoir à coup sûr que le nombre est composé.
+Cependant, il peut se tromper s'il prétend que le nombre est premier. On va voir quels sont les nombres qui font échouer ce test et donc ce théorème.
+\clearpage
+\subsection{Théorème de Fermat} 
+
+\underline{\textbf{Théorème :}}\textit{(Petit Théorème de Fermat)}
+\begin{center}
+    Soit $p$ un nombre premier et soit $a$ non divisible par $p$ alors $a^{p-1} \equiv 1 \mod p$.
+\end{center}
+La réciproque du théorème est vraie en effet si $p$ est composé on prend un diviseur non trivial de $p$ nommé $d$. Pour $1<d<p$ on a  $d^{\ p-1} \not \equiv 1 \mod p$.\\
+Par contre, si on fixe la base $a$, il se peut que $a^{p-1}\equiv 1\mod p$ sans que $p$ ne soit premier. Ce sont des nombres pseudos-premiers dont on verra la définition.\\
+
+\underline{\textbf{Théorème :}}\textit{(variante)}
+
+\begin{center}
+    Pour tout $a \in \mathbb{Z} $ et $p$ premier, $a^{p} \equiv a \mod p$.
+\end{center}
+Néanmoins ici la réciproque du théorème est fausse. Ce sont les nombres pseudo-premiers qui pour toutes les valeurs de $a$ qui sont premières avec $p$ ,autrement appelé nombre de Carmichael, font échouer cette réciproque. Ainsi, le petit théorème de Fermat donne une condition nécessaire pour qu'un nombre $p$ soit premier mais non suffisante. 
+\subsection{Le test de Fermat} 
+Ce premier algorithme permet de vérifier le petit Théorème de Fermat.\\
+Il permet de comprendre l'idée utilisée pour construire le test de Fermat.
+\begin{algorithm}[h!]
+\caption{Fermat($n$)}
+\begin{algorithmic}[1]
+\Require{$n$ un entier} \Comment{Petit théorème de Fermat}
+\Ensure{$n$ est premier ou composé}
+\State Choisir $a$ un entier tel que $2\leq a \leq n-1$
+\If{$a^{n-1} \equiv 1 \mod n$} \Return "premier"
+\EndIf
+\State \Return "composé"
+\end{algorithmic}
+\end{algorithm}
+
+Ce deuxième algorithme est le test de Fermat. Il itère $t$ fois en utilisant le théorème de Fermat afin de vérifier si $n$ est premier. On sait que s'il retourne "composé" alors $n$ est composé mais s'il retourne "premier" on sait que $n$ n'est pas forcément premier.
+\begin{algorithm}
+\caption{TestFermat($n$,$t$)}
+\begin{algorithmic}[1]
+\Require{$n\geq 3$ impair et $t$ un paramètre de sécurité}
+\Ensure{$n$ est premier ou composé}
+\For{$i$ \textbf{allant de} 1 \textbf{à} $t$}
+\State Choisir $a$ un entier tel que $2\leq a \leq n-2$
+\State Calculer  $r=a^{n-1} \mod n$
+\If{$r \not = 1$} \Return "composé" 
+\EndIf
+\EndFor
+\State \Return "premier"
+\end{algorithmic}
+\end{algorithm}
+
+Soit $n\geq 3$ impair, la probabilité que TestFermat($n$,$t$) déclare que $n$ est “premier” est inférieure à $\left(\frac{1}{2}\right)^{t}$ car il échoue pour au moins la moitié des choix de $a \in \mathbb {Z} /n\mathbb {Z}$. \\ \\
+\underline{\textbf{Preuve :}}\\
+Considérons l'ensemble $H$ des valeurs de $a \in \mathbb {Z} /n\mathbb {Z}$ qui ne font pas échouer le test, ainsi $H= \{a \in \mathbb {Z} /n\mathbb {Z}  : a^{n-1} \equiv 1 \mod n \}$. On a alors $Card(H) < \varphi(n)$. $H$ est un sous-groupe strict du groupe multiplicatif 
+$(\mathbb {Z} /n\mathbb {Z} )^{\times }$. Par le théorème de Lagrange, $Card(H)\leq {\dfrac {n-1}{2}}$. Ainsi, en itérant $t$ fois le test de Fermat de la façon suivante, la probabilité de retourner "premier" si $n$ est composé est plus petite que $\left(\frac{1}{2}\right)^{t}$.
+\subsection{L'inconvénient}
+Le désavantage de cet algorithme est bien sur le fait qu'il existe des nombres qui passent le test alors qu'ils ne sont pas "premier".
+\\ \\
+\underline{\textbf{Proposition :}}
+On dit qu’un nombre $n$ est pseudo-premier en base $a$ si $n$ n’est pas premier et vérifie l’égalité $a^{n-1} \equiv 1 \mod n $.
+
+\underline{\textbf{Proposition :}} Soit un nombre Carmichael $n$ est un entier composé tel que $a^{n-1} \equiv 1 \mod n$ pour tous les entiers $a$ qui satisfont $\text{pgcd}(a,n)=1$. C'est donc un nombre-pseudo premier avec un condition en plus qui est que $\text{pgcd}(a,n)=1$.
+
+Finalement, les nombres pseudo-premiers et  de Carmichael font échouer à coup sûr le test de Fermat renvoyant "premier" alors qu'ils sont "composé" même si le paramètre $t$ d'itération est élevé. Nous savons que depuis 1994, il en existe une infinité. Or, cet algorithme ne sera pas utilisé en pratique pour trouver si un nombre est premier car il y a trop de nombres pseudo-premiers qui font échouer le test mais il permet d'avoir une approche en terme de test sur les nombres premiers.
+Cette carence dans le test de Fermat est éliminée dans les tests probabilistes de primalité de Solovay-Strassen et Miller-Rabin en s’appuyant sur des critères qui sont plus forts que le théorème de Fermat.
+
+
+\section{Test de Miller-Rabin}
+
+ On le considère comme l'algorithme le plus efficace pour les test probabilistes et ce test est une amélioration du test de Fermat. Il est beaucoup moins évident que Fermat mais meilleur car il s'appuie sur des critères plus fort qui ne font pas échouer l'algorithme pour les nombres de Carmichael. La probabilité donc pour cet algorithme de se tromper est beaucoup plus basse que pour les test de Fermat ce qui est un très gros atout. On verra dans la suite les avantages et la probabilité de cet algorithme de se tromper.\\
+ Le test de Miller Rabin est un algorithme probabiliste très rapide. Il est très utilisé en cryptographie asymétrique notamment lors du chiffrement RSA pour engendrer les grands nombres premiers nécessaires.\\ Étant donné un nombre entier $n$, il retourne soit:
+
+-\textbf{Composé}: dans ce cas on sait de façon certaine que $n$ est composé
+
+-\textbf{Premier}: dans ce cas on sait que $n$ est probablement premier
+
+Dans le cas "composé" on dispose de plus d’un " témoin " prouvant que $n$ est composé. Pour le cas "premier", par répétitions de l’algorithme, on peut rendre aussi faible que l’on veut la probabilité qu’un nombre composé $n$ soit déclaré probablement premier.
+\clearpage
+
+\subsection{Propositions et Théorème de Miller-Rabin} 
+
+\underline{\textbf{Proposition :}} Soit $n$ un nombre premier impair que l’on décompose sous la forme $n= 2^s \times r +1$. Avec $s$ et $r$ deux entiers naturels tel que $s$ est non nul et $r$ impair. Soit $a \in \mathbb{N}$ tel que $pgcd(a,n)=1$, on a: 
+\begin{enumerate}[label=\roman*)]
+ \item  Soit  $a^r \equiv 1 \mod n$ ;
+ \item  Soit $ a^{2^{i}\times r} \equiv -1 \mod n$ pour certains $i$ tels que $0\leq i \leq s-1$.
+\end{enumerate}
+
+Ainsi avec cette proposition on arrive à la définition suivante:\\ \\
+\underline{\textbf{Définition :}}
+Soit $n$ un nombre premier impair composé de la forme $n= 2^s\times r +1$. Avec $s$ et $r$ deux entiers naturels tel que $s$ est non nul et $r$ impair. Pour tout $a \in [1,n-1]$, on a: 
+\begin{enumerate}[label=\roman*)]
+ \item  Si $a^r \not\equiv 1 \mod n$ et $ a^{2^{i}\times r} \not\equiv -1 \mod n$, pour tout $i$ tel que $0\leq i \leq s-1$ , alors $a$ est un témoin pour $n$ ; 
+ \item  Sinon si $a^r \equiv 1 \mod n$ ou $ a^{2^{i}\times r} \equiv -1 \mod n$, pour certains $i$ tels que $0\leq i \leq s-1$ alors $n$ est dit être un pseudo-premier fort en base $a$.
+\end{enumerate}
+
+\underline{\textbf{Théorème :}} Soit $n$ un entier impair composé $>$ 9, avec $n= 2^s\times r +1 $ pour $r$ impair. Alors il existe au plus $\dfrac{\varphi(n)}{4}$ menteurs forts $a$, pour $1<a<n$, c'est-à-dire des entiers $a$ vérifiant soit $a^r \equiv 1 \mod n$, soit $ a^{2^{i}\times r} \equiv -1 \mod n$, pour un certain $i$ tel que $0\leq i \leq s-1$.
+
+Tout ceci nous conduit au test de Miller-Rabin.
+
+
+\subsection{Le test de Miller-Rabin} 
+
+Cet algorithme est le test de Miller-Rabin. Il itère $t$ fois afin de vérifier si $n$ est premier. Or le nombre $n$ peut être déclaré premier avec une faible probabilité d'erreur en ajustant le paramètre de sécurité $t$ pour que la probabilité d'échouer soit inférieure à $\left(\frac{1}{2}\right)^{80}$ .
+
+\begin{algorithm}[h!]
+\caption{MillerRabin($n$,$t$)}
+\begin{algorithmic}[1]
+\Require{$n\geq 3$ impair et $t$ un paramètre de sécurité}
+\Ensure{$n$ est premier ou composé}
+\State \textbf{Ecrire} $n= 2^s \times r +1 $ tel que r est premier
+\For{$i$ \textbf{allant de} 1 \textbf{à} $t$}
+\State Choisir $a$ un entier tel que $2\leq a \leq n-2$
+\State Calculer  $y=a^{r} \mod n$
+\If{$y \not = 1$ et $y \not = n-1$} faire 
+\State i=1
+\While{ $i \leq s-1$ et $y\ne n-1$}
+\State Calculer $ y=y^2 \mod n$
+\State \textbf{si} $y = 1$ \Return "composé"
+\State $i=i+1$
+\EndWhile
+\State \textbf{si} $y\ne n-1$ \Return "composé"
+\EndIf
+\EndFor
+\State \Return "premier"
+\end{algorithmic}
+\end{algorithm}
+
+\clearpage
+\underline{\textbf{On propose une preuve du théorème : }}
+
+On écrit $ n = \prod_i p_i^\varepsilon^_i $ la décomposition unique de $n$ en facteur premiers, $n-1=2^\alpha m$ avec $m$ impair.
+
+On pose $p_i-1 = 2^{\alpha_i}m_i$ avec $m_i$ impair.
+
+Finalement notons $\beta = \min\{\alpha_i , p_i|n \}$ de sorte que $\beta$ soit 
+la plus grande puissance de 2 divisant tout les $p_i-1$.
+
+on considère les ensembles définit comme suit :
+\begin{center}
+    $N_+ = \{ x \in \mathbb{Z}/n\mathbb{Z} , x^{2^{\beta-1}m}={1}\}$ , $N_- = \{ x \in \mathbb{Z}/n\mathbb{Z} , x^{2^{\beta-1}m}={-1}\}$ , $N=N_+\cup N_-$
+\end{center}
+ 
+enfin $$M=\{x \in \mathbb{Z}/n\mathbb{Z}\; |\;  x^m=1 \text{ ou } x^{2^jm}=-1 \text{ pour }  j\in \{ 0,1,...,\alpha-1\} \} $$ 
+
+On va montrer successivement que $M\subset N$, puis que $\#N=\frac{\varphi(n)}{4}$, ce qui permet de conclure.
+
+Commençons par vérifier que $M\subset N$. Cela repose sur le théorème chinois qui nous permet de décomposer $\mathbb{Z}/n\mathbb{Z}^*$ en produit de groupe cyclique :
+
+$$\mathbb{Z}/n\mathbb{Z}^*\simeq \prod_i \mathbb{Z}/p_i^{\varepsilon_i}\mathbb{Z}^* $$
+
+On sait que chaque composante du produit de droite est de cardinal $p_i^{\varepsilon_i-1}(p_i-1)$.
+Cela étant, pour $x\in \mathbb{Z}/n\mathbb{Z}^*$, si $x^m=1$, il est évident que $x \in N .$ Si maintenant $x^{2^j m}=-1$ pour un $j \in \{0, 1, . . . , \alpha - 1\}$,
+alors $(x^m)^{2^j}=-1 \mod n$. A fortiori, $(x^m)^{2^j}=-1\mod p_i^{\varepsilon_i}$ pour tout i. En particulier, cela veut dire que $x^m$ est d'ordre $2^{j+1}$ modulo $p_i^{\varepsilon_i}$ pour tout i.
+
+Par conséquent $2^{j+1}$ divise $\varphi(p_i^{\varepsilon_i})$ si bien que  $j+1<\beta$.
+
+il en résulte bien que $x\in N$. 
+
+- Dénombrer $N_+$ revient à compter les solutions de l'équation $x^{2^{\beta-1}m}=1 \mod p_i^{\varepsilon_i}$ pour tout i. On a donc :
+
+$$\#N_+ = \prod_i \text{pgcd}\left( 2^{\beta -1 }m,p_i^{\varepsilon_i-1}(p_i-1) \right) =\prod_i 2^{\beta-1}\text{pgcd}(m,p_i-1)  $$
+
+De la même façon, dénombrer $N_-$ revient, pour chaque diviseur premier $p_i$ de $n$, à compter le nombre  de solutions  de l'équation $x^{2^{\beta-1}m}=-1 \mod p_i^{\varepsilon_i}$. On remarque alors que :
+
+$$\{x \in \mathbb{Z}/p_i^{\varepsilon_i}\mathbb{Z}\; ,x^{2^{\beta -1}m}=-1 \}=\{x \in \mathbb{Z}/p_i^{\varepsilon_i}\mathbb{Z}\; ,x^{2^{\beta}m}=1 \}\backslash \{x \in \mathbb{Z}/p_i^{\varepsilon_i}\mathbb{Z}\; ,x^{2^{\beta -1}m}=1 \}$$
+
+
+si bien que :
+
+\begin{align*}
+    \{x \in \mathbb{Z}/p_i^{\varepsilon_i}\mathbb{Z}\; ,x^{2^{\beta -1}m}=-1 \}&=\text{pgcd}\left( 2^{\beta  }m,p_i^{\varepsilon_i-1}(p_i-1) \right)-\text{pgcd}\left( 2^{\beta -1 }m,p_i^{\varepsilon_i-1}(p_i-1) \right)\\
+    &=2^{\beta}\text{pgcd}(m,p-1)-2^{\beta-1}\text{pgcd}(m,p-1)\\
+    &=2^{\beta-1}\text{pgcd}(m,p-1)
+\end{align*}
+
+Ainsi $\#N_+=\#N_-$ et :
+
+$$\#N=2\prod_{p|n} 2^{\beta -1}\text{pgcd}(m,p-1)$$
+
+Il nous faut donc prouver que :
+
+\begin{align}
+    \dfrac{\#N}{\varphi(n)}=2\prod_{p|n}\dfrac{2^{\beta-1}\text{pgcd}(p-1,m)}{(p-1)p^{\varepsilon_p-1}} \overset{?}{\leq} \dfrac{1}{4} \Leftrightarrow \prod_{p|n}\dfrac{(p-1)}{2^{\beta-1}\text{pgcd}(p-1,m)} p^{\varepsilon-1} \overset{?}{\geq} 8 
+\end{align}
+
+Comme $\dfrac{(p-1)}{2^{\beta-1}\text{pgcd}(p-1,m)}$ est un entier supérieur a 1, si $n$ est divisible par au moins trois premiers distincts, l'inégalité (2.1) est satisfaite. Dans le cas ou $n$ ne possède que deux premiers $p$ et $q$ dans sa décomposition primaire, on distingue deux possibilités. Soit, par exemple $\varepsilon_p \geq 2 $ auquel cas le membre de gauche de (2.1) est clairement $\geq 4p \geq 8$.
+Soit $n=pq$; le seul cas de figure ou l'inégalité (2) pourrait ne pas être satisfaite, c'est quand :
+
+$$\dfrac{(p-1)}{2^{\beta-1}\text{pgcd}(p-1,m)}=\dfrac{q-1}{2^{\beta-1}\text{pgcd}(q-1,m)}=2$$
+
+ou encore :
+$$
+\left\{
+    \begin{array}{ll}
+        p-1=2^{\beta}\text{pgcd}(p-1,m)=2^{\alpha_p m_p}
+        \\
+        q-1=2^{\beta}\text{pgcd}(q-1,m)=2^{\alpha_q m_q}
+    \end{array}
+\right.
+$$
+
+cela implique :
+
+$$
+\left\{
+    \begin{array}{ll}
+        \alpha_p=\alpha_q=\beta
+        \\
+        \text{pgcd}(p-1,m)=m_p
+        \\
+        \text{pgcd}(q-1,m)=m_q
+    \end{array}
+\right.
+$$
+
+Ainsi $m_p$ doit diviser $m$ et $(p-1)$. Ceci est impossible car en raisonnant modulo $m_p$ on s'aperçoit que :
+
+$$2^{\beta}m_q=q-1\equiv pq-1\equiv n-1 \equiv 2^\alpham \equiv 0 \mod m_p \implies m_p|m_q$$.
+
+Par symétrie, on a aussi $m_q|m_p$ donc $m_q=m_p$ puis $p=q$, ce qui est absurde. Enfin, si $n$ est la puissance d'un seul premier $n=p^{\varepsilon_p}$ alors, comme $n$ est supposé impair et plus grand que $9$, on a $p\geq 5$ et $\varepsilon_p \geq 2$ ou $p\geq 3$ et $\varepsilon_p \geq3$; dans les deux cas l'inégalité (2) est encore trivialement satisfaite.
+
+\clearpage
+\subsection{L'avantage}
+
+Tout d'abord, le test de Miller-Rabin est très efficace. La probabilité qu'un $a$ pris au hasard soit un menteur fort est au plus $\frac{1}{4}$. Si on répète t fois l'algorithme la probabilité qu'un nombre composé impair de p bits (compris pris entre $2^p - 1$ et $m = 2^p$) soit déclaré probablement premier par l'algorithme de Miller-Rabin est inférieure à $\left(\frac{1}{4}\right)^{t}$.
+L’algorithme arrive donc très rapidement à détecter un nombre composé avec une marge d’erreur très faible mais non nulle.
+
+Un autre avantage est sa complexité. Dans le test de Miller-Rabin, on calcule tout d'abord au moyen de l'algorithme d'exponentiation modulaire rapide  $y$, tel que $y=a^{r} \mod n$. Le coût est  $O(log(r)*log^2(n))$. Puis on éléve au carré $y$ tel que $y= a^{2^{i}*r} \mod n $ pour tout $i$ dans $ \{1,...,s-1\} $. Son coût est en $O((log(n)^2)$. Enfin, on répete t fois l'algorithme est sa complexité devient $O(t*(log(n))^3)$. Ainsi ce test à un temps polynomial efficace.

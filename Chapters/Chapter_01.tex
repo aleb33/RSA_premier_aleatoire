@@ -1,0 +1,29 @@
+
+\chapter{Introduction}
+
+La cryptographie est l’ensemble de méthodes visant à sécuriser l’information et les communications numériques contre des adversaires. Elle utilise un système de chiffrement qui consiste à traduire un message donné en langage codé et un système de déchiffrement qui consiste à reconstituer le message initial à partir d'un message codé lorsqu'on connaît le code. 
+L’utilisation des nombres premiers en cryptographie se base sur le système RSA qui est un système de chiffrement à clé publique. Cet algorithme a été décrit en 1977 par Ronald Rivest, Adi Shamir et Leonard Adleman. Le système RSA est original en ce sens que l'algorithme de chiffrement et la clé sont connus de tous, et cependant une seule personne peut déchiffrer le message.
+
+\section{Fonctionnement de base du système RSA}
+
+Les clés utilisées en cryptographie à clé publique sont en général construites à partir de grands nombres premiers choisis aléatoirement.
+Un nombre premier $p$ est un entier strictement supérieur à 1, qui admet exactement deux diviseurs distincts, 1 et lui-même soit $p$.
+Le système RSA utilise une paire de clés (des nombres entiers) composée d'une clé publique pour chiffrer et d'une clé privée pour déchiffrer des données confidentielles. Les deux clés sont créées par une personne, souvent nommée par convention Alice, qui souhaite que lui soient envoyées des données confidentielles. Alice rend la clé publique accessible. Cette clé est utilisée par ses correspondants (Bob, etc.) pour chiffrer les données qui lui sont envoyées. La clé privée est quant à elle réservée à Alice, et lui permet de déchiffrer ces données. La clé privée peut aussi être utilisée par Alice pour signer une donnée qu'elle envoie.
+
+RSA est considéré comme un système de “sécurité absolue” pourvu qu’on utilise des grands nombres premiers.
+Ainsi pour générer ces nombres premiers, on va tout d’abord dans un premier temps vérifier la primalité de ces nombres et ensuite dans un second temps on va parler des méthodes qui permettent de générer ces entiers, en utilisant des algorithmes de génération aléatoires de nombres premiers.
+
+\section{Génération aléatoire de nombres premiers}
+
+Notre objet de réflexion repose sur cet enjeu de générer de très grands nombres premiers de 1024 bits aléatoires que l'on ne puisse pas retrouver facilement. Nous voulons donc savoir avec une grande certitude si un grand nombre est premier ou non. Cependant pour générer un grand nombre premier aléatoire des tests doivent être appliqués un grand nombre de fois surtout si le nombre premier cherché doit avoir des propriétés particulières.\\
+Ceci rend la méthode coûteuse en temps et aussi en quantité d’aléas nécessaire. C'est un gros défi car il n'est pas si simple de prouver qu'un nombre aussi grand soit premier en très peu de temps. On veut des algorithmes capable de donner une réponse quasi immédiate. Nous allons donc utiliser des théorèmes(Fermat, Miller-Rabin,...) et des factorisations d'entiers lorsque l'on reconnaît ou connaît sa forme (nombres de Mersennes, Sophie Germain). Notre étude se portera beaucoup plus sur la partie implémentation et l'étude expérimentale de ces algorithmes.
+\\ 
+\clearpage
+Notre but final est de générer de très grands nombres premiers aléatoires afin d'avoir un système RSA infaillible. Nous allons donc découvir plusieurs tests rassemblant divers aléas en quantité plus ou moins grande.
+Il existe de nombreux tests visant à diminuer le temps de calcul quitte à sacrifier un peu le caractère aléatoire des nombres premiers générés. D’autres test visent à produire des nombres premiers de manière proche de l’uniforme en diminuant la quantité d’aléas nécessaire.
+
+D'une part, nous nous concentrerons sur deux grands axes qui sont les tests probabilistes de primalité et les tests de primalité.\\
+D'autre part, nous aborderons la génération aléatoire de nombre premiers.
+
+Nous n'aborderons pas le côté implémentation de nos algorithmes dans la section \ref{Test probabiliste de primalité} car les algorithmes ne sont pas trop "coûteux" ni difficile et nous ne trouvons donc pas nécessaire de développer une partie sur cet aspect. Nous exprimerons nos résultats expérimentaux qu'à partir de la section \ref{Test de primalité}.
+\clearpage
